@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AquaFlow | Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>🧑‍💼 Admin Dashboard</h1>
+  <p>Monitor tanker distribution & fairness</p>
+</header>
+
+<div class="grid">
+  <div class="card" id="stats"></div>
+  <div class="card" id="history"></div>
+</div>
+
+<script>
+fetch("/admin/data")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("stats").innerHTML = `
+      <h3>📈 System Stats</h3>
+      <p>Total Tankers: ${data.totalTankers}</p>
+      <p>Available: ${data.available}</p>
+      <p>Booked: ${data.booked}</p>
+    `;
+
+    let html = "<h3>📜 Booking History</h3>";
+    data.bookings.forEach(b => {
+      html += `<p>🚚 ${b.driver} <br><small>${b.time}</small></p>`;
+    });
+
+    document.getElementById("history").innerHTML = html;
+  });
+</script>
+
+</body>
+</html>

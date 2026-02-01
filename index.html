@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaFlow | Booking</title>
+    <style>
+        :root {
+            --primary: #0077b6;
+            --accent: #00b4d8;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            /* IMAGE IS EMBEDDED DIRECTLY BELOW AS DATA */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600"><rect width="1000" height="600" fill="%232c3e50"/><text x="50%22" y="50%22" font-family="Arial" font-size="30" fill="white" text-anchor="middle">AQUAFLOW WATER TANKER BACKGROUND</text><path d="M200 400 h600 v-100 h-100 v-50 h-400 v50 h-100 z" fill="%230077b6"/><circle cx="300" cy="400" r="40" fill="black"/><circle cx="700" cy="400" r="40" fill="black"/></svg>');
+            
+            /* If you want a real photo, the URL below is the most stable link available */
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                              url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=2070');
+            
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { font-size: 24px; font-weight: bold; }
+        .nav-right a { color: white; text-decoration: none; margin-left: 20px; border: 1px solid white; padding: 5px 15px; border-radius: 20px; }
+
+        .center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: 25px;
+            display: none; 
+            animation: fadeIn 0.5s ease;
+        }
+
+        #loginCard { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--primary); margin-top: 0; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { background: var(--accent); transform: scale(1.02); }
+
+        .instructions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 40px;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border-top: 4px solid var(--accent);
+        }
+
+        .link { 
+            color: white; 
+            margin-top: 20px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        #tankerList div {
+            background: #e9ecef;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">💧 AquaFlow</div>
+    <div class="nav-right">
+        <span class="helpline">📞 Helpline: 1800-123-456</span>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+</div>
+
+<div class="center-container">
+    <div class="card" id="loginCard">
+        <h2>🔐 User Login</h2>
+        <p>Enter your details to start booking</p>
+        <input type="text" id="mobile" placeholder="Enter Mobile Number">
+        <button onclick="login()">Get OTP</button>
+    </div>
+
+    <div class="card" id="otpCard">
+        <h2>🔑 OTP Verification</h2>
+        <input id="otp" placeholder="Enter 4-Digit OTP">
+        <button onclick="verifyOTP()">Verify & Continue</button>
+    </div>
+
+    <div class="card" id="bookingCard">
+        <h2>📦 My Booking</h2>
+        <button onclick="fetchTankers()">Check Available Tankers</button>
+        <div id="tankerList"></div>
+    </div>
+
+    <div class="card" id="paymentCard">
+        <h2>💳 Payment</h2>
+        <p id="selectedTankerText"></p>
+        <button onclick="payNow()">Confirm & Pay Now</button>
+    </div>
+
+    <div class="instructions">
+        <div class="step">
+            <h3>Step 1</h3>
+            <p>Login with your mobile number and verify via OTP.</p>
+        </div>
+        <div class="step">
+            <h3>Step 2</h3>
+            <p>Select your preferred tanker capacity (4k-10k Liters).</p>
+        </div>
+        <div class="step">
+            <h3>Step 3</h3>
+            <p>Complete payment and track your water in real-time!</p>
+        </div>
+    </div>
+
+    <a href="dashboard.html" class="link">➜ View Live Tracking Dashboard</a>
+</div>
+
+<script>
+    function showCard(cardId) {
+        document.querySelectorAll('.card').forEach(card => card.style.display = 'none');
+        document.getElementById(cardId).style.display = 'block';
+    }
+
+    function login() {
+        const mobile = document.getElementById('mobile').value;
+        if(mobile) {
+            alert("OTP sent to " + mobile);
+            showCard('otpCard');
+        } else {
+            alert("Please enter a mobile number");
+        }
+    }
+
+    function verifyOTP() {
+        const otp = document.getElementById('otp').value;
+        if(otp === "1234") {
+            showCard('bookingCard');
+        } else {
+            alert("Use 1234 as your test OTP!");
+        }
+    }
+
+    function fetchTankers() {
+        const list = document.getElementById('tankerList');
+        list.innerHTML = `
+            <div onclick="selectTanker('4,000L Standard')">🚛 4,000L Standard - ₹800</div>
+            <div onclick="selectTanker('6,000L Premium')">🚛 6,000L Premium - ₹1200</div>
+            <div onclick="selectTanker('10,000L Jumbo')">🚛 10,000L Jumbo - ₹1800</div>
+        `;
+    }
+
+    function selectTanker(name) {
+        document.getElementById('selectedTankerText').innerText = "Selected: " + name;
+        showCard('paymentCard');
+    }
+
+    function payNow() {
+        alert("Payment Successful! Your tanker is on the way.");
+        window.location.href = "dashboard.html";
+    }
+</script>
+</body>
+</html>
